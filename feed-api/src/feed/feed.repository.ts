@@ -19,7 +19,13 @@ export class FeedRepository extends CommonRepository {
         const resultsPerPage = +queryParams.get("resultsPerPage") || RESULTS_PER_PAGE_DEFAULT;
         const offset = (pageNumber - 1) * resultsPerPage;
 
-        const feedQuery = `SELECT * FROM feed_data LIMIT ${offset},${resultsPerPage}`;
+        const sortBy = queryParams.get("sortBy");
+        let sortByQuery = "";
+        if (sortBy) {
+            sortByQuery = sortBy === 'name' ? `ORDER BY name ASC` : `ORDER BY dateLastEdited DESC`;
+        }
+
+        const feedQuery = `SELECT * FROM feed_data ${sortByQuery} LIMIT ${offset},${resultsPerPage}`;
 
         const totalQuery = `SELECT COUNT(*) as totalResults FROM feed_data`;
 
