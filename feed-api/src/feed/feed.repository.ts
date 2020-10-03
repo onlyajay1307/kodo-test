@@ -25,9 +25,26 @@ export class FeedRepository extends CommonRepository {
             sortByQuery = sortBy === 'name' ? `ORDER BY name ASC` : `ORDER BY dateLastEdited DESC`;
         }
 
-        const feedQuery = `SELECT * FROM feed_data ${sortByQuery} LIMIT ${offset},${resultsPerPage}`;
+        const keyword = queryParams.get("keyword");
+        let searchQuery = "";
+        if (keyword) {
+            if (keyword.indexOf('\'') >= 0 || keyword.indexOf('"') >= 0) {
+                // searchQuery = `WHERE ( name LIKE '%${keyword}%' OR description LIKE '%${keyword}%')`;
+                searchQuery = `WHERE MATCH(name, description) AGAINST ('${keyword}')`;
+            } else {
+                const keywordArray = keyword.split(" ");
+                const keyResult = [];
+                for (const key of keywordArray) {
+                    keyResult.push(`name LIKE '%${key}%'`);
+                    keyResult.push(`description LIKE '%${key}%'`);
+                }
+                searchQuery = `WHERE ( ${keyResult.join(" OR ")} )`;
+            }
+        }
 
-        const totalQuery = `SELECT COUNT(*) as totalResults FROM feed_data`;
+        const feedQuery = `SELECT * FROM feed_data ${searchQuery} ${sortByQuery} LIMIT ${offset},${resultsPerPage}`;
+
+        const totalQuery = `SELECT COUNT(*) as totalResults FROM feed_data ${searchQuery}`;
 
         const parallelTask = {
             results: this.executeQuery(feedQuery, "FeedRepository-getFeedDetails"),
