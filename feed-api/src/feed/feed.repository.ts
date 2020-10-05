@@ -14,7 +14,7 @@ export class FeedRepository extends CommonRepository {
     public async getFeedDetails(query: object): Promise<any> {
         const queryParams = new Map(Object.entries(query));
         const PAGE_NUMBER_DEFAULT = 1; // Page
-        const RESULTS_PER_PAGE_DEFAULT = 10; // limit
+        const RESULTS_PER_PAGE_DEFAULT = 9; // limit
         const pageNumber = +queryParams.get("pageNumber") || PAGE_NUMBER_DEFAULT;
         const resultsPerPage = +queryParams.get("resultsPerPage") || RESULTS_PER_PAGE_DEFAULT;
         const offset = (pageNumber - 1) * resultsPerPage;
